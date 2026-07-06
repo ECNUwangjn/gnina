@@ -1,0 +1,33 @@
+name: 极限压缩版极客下载器
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+    # 彻底清空 GitHub 服务器上的无用东西腾出 30GB 空间
+    - name: Free Disk Space
+      uses: jlumbroso/free-disk-space@main
+      with:
+        tool-cache: true
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: false
+        swap-storage: true
+
+    - name: Pull and Compress Docker Image
+      run: |
+        # 1. 拉取镜像
+        docker pull gnina/gnina:latest
+        
+        # 2. 边打包边压缩（这能省掉一大半磁盘占用）
+        docker save gnina/gnina:latest | gzip > gnina_compressed.tar.gz
+
+    # 把压缩好的包提供给你下载
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gnina-image-final
+        path: gnina_compressed.tar.gz
