@@ -1,0 +1,30 @@
+name: Docker Downloader
+
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-24
+    steps:
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@main
+      with:
+        tool-cache: true
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: false
+        swap-storage: true
+    # -------------------------------
+
+    - name: Pull and Save Docker Image
+      run: |
+        docker pull gnina/gnina:latest
+        docker save -o gnina.tar gnina/gnina:latest
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gnina-image
+        path: gnina.tar 
