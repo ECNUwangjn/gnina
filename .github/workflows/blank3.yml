@@ -1,0 +1,32 @@
+name: Docker Downloader
+
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+    # --- 新增的清理磁盘空间的步骤 ---
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@main
+      with:
+        # 下面这些选项表示将其从 Github 服务器上删掉以腾出空间
+        tool-cache: true
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: false
+        swap-storage: true
+    # -------------------------------
+
+    - name: Pull and Save Docker Image
+      run: |
+        docker pull gnina/gnina:latest
+        docker save -o gnina.tar gnina/gnina:latest
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gnina-image
+        path: gnina.tar 
